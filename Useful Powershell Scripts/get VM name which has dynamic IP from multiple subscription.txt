@@ -1,4 +1,4 @@
-#Connect-AzAccount
+Connect-AzAccount
 
 $subscriptionlist = Get-AzSubscription
 
