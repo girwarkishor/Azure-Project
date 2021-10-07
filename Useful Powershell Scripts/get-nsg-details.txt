@@ -17,7 +17,7 @@ foreach ( $azSub in $azSubs ) {
             @{label = 'Destination'; expression = { $_.DestinationAddressPrefix } }, `
             @{label = 'Destination Port Range'; expression = { $_.DestinationPortRange } }, `
             @{label = 'Resource Group Name'; expression = { $azNsg.ResourceGroupName } } | `
-            Export-Csv -Path "F:\Sandeep Rawat\$azSubName-nsg-rules.csv" -NoTypeInformation -Append -force
+            Export-Csv -Path "C:\temp\$azSubName-nsg-rules.csv" -NoTypeInformation -Append -force
         
         # Export default rules
         Get-AzNetworkSecurityRuleConfig -NetworkSecurityGroup $azNsg -Defaultrules | `
@@ -29,7 +29,7 @@ foreach ( $azSub in $azSubs ) {
             @{label = 'Destination'; expression = { $_.DestinationAddressPrefix } }, `
             @{label = 'Destination Port Range'; expression = { $_.DestinationPortRange } }, `
             @{label = 'Resource Group Name'; expression = { $azNsg.ResourceGroupName } } | `
-            Export-Csv -Path "F:\Sandeep Rawat\$azSubName-nsg-rules.csv" -NoTypeInformation -Append -force
+            Export-Csv -Path "C:\temp\$azSubName-nsg-rules.csv" -NoTypeInformation -Append -force
       
     }    
 }
