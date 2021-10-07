@@ -1,4 +1,6 @@
-﻿$azSubs = Get-AzSubscription
+﻿Connect-AzAccount
+
+$azSubs = Get-AzSubscription
 
 foreach ( $azSub in $azSubs ) {
     Set-AzContext -Subscription $azSub | Out-Null
