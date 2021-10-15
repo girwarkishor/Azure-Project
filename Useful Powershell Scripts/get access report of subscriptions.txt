@@ -1,3 +1,5 @@
+Connect-AzAccount
+
 $subscriptionlist = Get-AzSubscription
 
 $outfile = "C:\temp\access1.csv"
