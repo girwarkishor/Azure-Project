@@ -1,0 +1,199 @@
+{
+  "properties": {
+    "displayName": "test keyvault to storage",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "metadata": {
+      "category": "Key Vault"
+
+    },
+    "parameters": {
+      "profileName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Profile Name for Config",
+          "description": "The profile name Azure Diagnostics"
+        }
+      },
+      "StorageAccountID": {
+        "type": "String",
+        "metadata": {
+          "displayName": "StorageAccountID",
+          "description": "The Storage Account ID for for Azure Diagnostics",
+          "strongType": "Microsoft.Storage/StorageAccounts",
+          "assignPermissions": true
+        }
+      },
+      "azureRegions": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed Locations",
+          "description": "The list of locations that can be specified when deploying resources",
+          "strongType": "location"
+        }
+      },
+      "metricsEnabled": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Enable Metrics",
+          "description": "Enable Metrics - True or False"
+        },
+        "allowedValues": [
+          "True",
+          "False"
+        ],
+        "defaultValue": "False"
+      },
+      "logsEnabled": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Enable Logs",
+          "description": "Enable Logs - True or False"
+        },
+        "allowedValues": [
+          "True",
+          "False"
+        ],
+        "defaultValue": "True"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.KeyVault/vaults"
+          },
+          {
+            "field": "location",
+            "in": "[parameters('azureRegions')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+                "equals": "[parameters('logsEnabled')]"
+              },
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/metrics.enabled",
+                "equals": "[parameters('metricsEnabled')]"
+              },
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/storageAccountId",
+                "equals": "[last(split(parameters('storageAccountId'), '/'))]"
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "storageAccountId": {
+                    "type": "string"
+                  },
+                  "metricsEnabled": {
+                    "type": "string"
+                  },
+                  "logsEnabled": {
+                    "type": "string"
+                  },
+                  "profileName": {
+                    "type": "string"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "type": "Microsoft.KeyVault/vaults/providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat(parameters('name'), '/', 'Microsoft.Insights/', parameters('profileName'))]",
+                    "location": "[parameters('location')]",
+                    "properties": {
+                      "storageAccountId": "[parameters('storageAccountId')]",
+                      "metrics": [
+                        {
+                          "category": "AllMetrics",
+                          "enabled": "[parameters('metricsEnabled')]",
+                          "retentionPolicy": {
+                            "enabled": true,
+                            "days": 180
+                          }
+                        }
+                      ],
+                      "logs": [
+                        {
+                          "category": "AuditEvent",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": true,
+                            "days": 180
+                          }
+                        },
+                        {
+                          "category": "AzurePolicyEvaluationDetails",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": true,
+                            "days": 180
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "outputs": {
+                  "policy": {
+                    "type": "string",
+                    "value": "[concat(parameters('storageAccountId'), 'configured for diagnostic logs for ', ': ', parameters('name'))]"
+                  }
+                }
+              },
+              "parameters": {
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "name": {
+                  "value": "[field('name')]"
+                },
+                "storageAccountId": {
+                  "value": "[parameters('storageAccountId')]"
+                },
+                "metricsEnabled": {
+                  "value": "[parameters('metricsEnabled')]"
+                },
+                "logsEnabled": {
+                  "value": "[parameters('logsEnabled')]"
+                },
+                "profileName": {
+                  "value": "[parameters('profileName')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "id": "/subscriptions/c940b844-c458-4256-b264-847ae83185d1/providers/Microsoft.Authorization/policyDefinitions/b3cf48e0-d501-494e-a2b0-a5ca8a52d0fe",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "b3cf48e0-d501-494e-a2b0-a5ca8a52d0fe"
+
+}
