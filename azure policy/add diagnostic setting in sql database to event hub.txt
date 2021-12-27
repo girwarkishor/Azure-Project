@@ -1,0 +1,224 @@
+{
+  "properties": {
+    "displayName": "test sql database",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "metadata": {
+      "version": "1.2.0",
+      "category": "SQL"
+
+    },
+    "parameters": {
+      "profileName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Profile name",
+          "description": "The diagnostic settings profile name"
+        },
+        "defaultValue": "setbypolicy"
+      },
+      "eventHubRuleId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Event Hub Authorization Rule Id",
+          "description": "The Event Hub authorization rule Id for Azure Diagnostics. The authorization rule needs to be at Event Hub namespace level. e.g. /subscriptions/{subscription Id}/resourceGroups/{resource group}/providers/Microsoft.EventHub/namespaces/{Event Hub namespace}/authorizationrules/{authorization rule}",
+          "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules",
+          "assignPermissions": true
+        }
+      },
+      "metricsEnabled": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Enable metrics",
+          "description": "Whether to enable metrics stream to the Event Hub - True or False"
+        },
+        "allowedValues": [
+          "True",
+          "False"
+        ],
+        "defaultValue": "False"
+      },
+      "logsEnabled": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Enable logs",
+          "description": "Whether to enable logs stream to the Event Hub  - True or False"
+        },
+        "allowedValues": [
+          "True",
+          "False"
+        ],
+        "defaultValue": "True"
+      },
+      "eventHubName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "eventHubName",
+          "description": null
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Sql/servers/databases"
+      },
+      "then": {
+        "effect": "DeployIfNotExists",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "name": "[parameters('profileName')]",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                "equals": "[parameters('logsEnabled')]"
+              },
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/metrics[*].enabled",
+                "equals": "[parameters('metricsEnabled')]"
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "eventHubRuleId": {
+                    "type": "string"
+                  },
+                  "metricsEnabled": {
+                    "type": "string"
+                  },
+                  "logsEnabled": {
+                    "type": "string"
+                  },
+                  "profileName": {
+                    "type": "string"
+                  },
+                  "eventHubName": {
+                    "type": "string"
+                  }
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Sql/servers/databases/providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat(parameters('fullName'), '/', 'Microsoft.Insights/', parameters('profileName'))]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [],
+                    "properties": {
+                      "eventHubAuthorizationRuleId": "[parameters('eventHubRuleId')]",
+                      "eventHubName": "[parameters('eventHubName')]",
+                      "metrics": [
+                        {
+                          "category": "AllMetrics",
+                          "enabled": "[parameters('metricsEnabled')]",
+                          "retentionPolicy": {
+                            "enabled": true,
+                            "days": 0
+                          }
+                        }
+                      ],
+                      "logs": [
+                        {
+                          "category": "QueryStoreRuntimeStatistics",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "QueryStoreWaitStatistics",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "Errors",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "DatabaseWaitStatistics",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "Blocks",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "SQLInsights",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "SQLSecurityAuditEvents",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "Timeouts",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "AutomaticTuning",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "Deadlocks",
+                          "enabled": "[parameters('logsEnabled')]"
+                        },
+                        {
+                          "category": "DevOpsOperationsAudit",
+                          "enabled": "[parameters('logsEnabled')]"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "outputs": {
+                  "policy": {
+                    "type": "string",
+                    "value": "[concat('Enabled diagnostic settings for ', parameters('fullName'))]"
+                  }
+                }
+              },
+              "parameters": {
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "fullName": {
+                  "value": "[field('fullName')]"
+                },
+                "eventHubRuleId": {
+                  "value": "[parameters('eventHubRuleId')]"
+                },
+                "metricsEnabled": {
+                  "value": "[parameters('metricsEnabled')]"
+                },
+                "logsEnabled": {
+                  "value": "[parameters('logsEnabled')]"
+                },
+                "profileName": {
+                  "value": "[parameters('profileName')]"
+                },
+                "eventHubName": {
+                  "value": "[parameters('eventHubName')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "id": "/subscriptions/c940b844-c458-4256-b264-847ae83185d1/providers/Microsoft.Authorization/policyDefinitions/b9f1f5b0-5368-49c8-9fa7-96ed65c5b8d1",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "b9f1f5b0-5368-49c8-9fa7-96ed65c5b8d1"
+
+}
