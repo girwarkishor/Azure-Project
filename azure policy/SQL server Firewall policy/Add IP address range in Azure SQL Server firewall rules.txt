@@ -1,0 +1,96 @@
+{
+  "properties": {
+    "displayName": "test sql ip 2",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "metadata": {
+      "version": "1.2.0",
+      "category": "SQL"
+
+    },
+    "parameters": {
+      "startipAddress": {
+        "type": "String",
+        "metadata": {}
+      },
+      "endipAddress": {
+        "type": "String",
+        "metadata": {}
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Sql/servers"
+      },
+      "then": {
+        "effect": "DeployIfNotExists",
+        "details": {
+          "type": "Microsoft.Sql/servers/firewallrules",
+          "name": "AllowAccessForExampleIp",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Sql/servers/firewallRules/startIpAddress",
+                "equals": "[parameters('startipAddress')]"
+              },
+              {
+                "field": "Microsoft.Sql/servers/firewallrules/endIpAddress",
+                "equals": "[parameters('endipAddress')]"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "serverName": {
+                    "type": "string"
+                  },
+                  "startipAddress": {
+                    "type": "string"
+                  },
+                  "endipAddress": {
+                    "type": "string"
+                  }
+                },
+                "resources": [
+                  {
+                    "name": "[concat(parameters('serverName'), '/AllowAccessForExampleIp')]",
+                    "type": "Microsoft.Sql/servers/firewallrules",
+                    "apiVersion": "2014-04-01",
+                    "properties": {
+                      "startIpAddress": "[parameters('startipAddress')]",
+                      "endIpAddress": "[parameters('endipAddress')]"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "serverName": {
+                  "value": "[field('name')]"
+                },
+                "startipAddress": {
+                  "value": "[parameters('startipAddress')]"
+                },
+                "endipAddress": {
+                  "value": "[parameters('endipAddress')]"
+                }
+              }
+            }
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ]
+        }
+      }
+    }
+  },
+  "id": "/subscriptions/c940b844-c458-4256-b264-847ae83185d1/providers/Microsoft.Authorization/policyDefinitions/c432450b-9c10-4d92-8606-3b37304bb823",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "c432450b-9c10-4d92-8606-3b37304bb823"
+
+}
