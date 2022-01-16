@@ -1,0 +1,58 @@
+{
+  "properties": {
+    "displayName": "test sql deny IP 2",
+    "policyType": "Custom",
+    "mode": "All",
+    
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Deny"
+      },
+      "listOfStartIpAddresses": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "List of Start IP Addresses for SQL",
+          "description": "List of Start IP Addresses for SQL"
+        }
+      },
+      "listOfEndIpAddresses": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "List of End IP Addresses for SQL",
+          "description": "List of End IP Addresses for SQL"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "Microsoft.Sql/servers/firewallRules/startIpAddress",
+            "notIn": "[parameters('listOfStartIpAddresses')]"
+          },
+          {
+            "field": "Microsoft.Sql/servers/firewallRules/endIpAddress",
+            "notIn": "[parameters('listOfEndIpAddresses')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  },
+  "id": "/subscriptions/c940b844-c458-4256-b264-847ae83185d1/providers/Microsoft.Authorization/policyDefinitions/05e0707c-c8f8-4dc8-a75a-fa3ec19ba1e2",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "05e0707c-c8f8-4dc8-a75a-fa3ec19ba1e2"
+
+}
